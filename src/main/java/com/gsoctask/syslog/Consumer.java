@@ -27,7 +27,11 @@ public class Consumer {
     private static int port;
 
 
-
+    /*
+     * This method send data to server
+     *
+     * @str    contain message data
+     */
     private static void tcpClient(String str) throws Exception{
 
         String response;
@@ -45,10 +49,11 @@ public class Consumer {
     }
 
     /*
-    * This method acc
-    * @fileName   given props file (config file)
-    * @return Properties object having key, value
-    */
+     * This method load props( say configuration)
+     *
+     * @fileName   given props file (config file)
+     * @return     Properties object having key, value
+     */
     public static Properties getConfig(String fileName) throws IOException{
         try (InputStream props = Resources.getResource(fileName).openStream()) {
             Properties properties = new Properties();
@@ -59,6 +64,8 @@ public class Consumer {
     }
 
     /*
+     * This method parse commandline arguments
+     * 
      * @args  string array contain command line arguments
      * @return Namespace object containing parsed arguments
      */
@@ -79,12 +86,16 @@ public class Consumer {
         return ns;
     }
 
-
+    /*
+     * main method
+     */
     public static void main(String[] args) throws Exception {
 
         Namespace ns;
         Properties properties;
         KafkaConsumer<String, String> consumer;
+
+        // client configuration from client.props
         properties = getConfig("client.props");
         if (properties.getProperty("host") == null || properties.getProperty("port") == null){
             throw new Exception("Client host and port required");
@@ -106,7 +117,7 @@ public class Consumer {
         }
         consumer = new KafkaConsumer<>(properties);
 
-        // getting topics from args
+        // getting topics from commandline arguments
         ns  = argParse(args);
         consumer.subscribe(Arrays.asList(ns.getString("topics").split(",")));
 
