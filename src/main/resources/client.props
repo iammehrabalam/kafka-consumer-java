@@ -1,0 +1,4 @@
+# client host and port
+
+host=localhost
+port=6789
