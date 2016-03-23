@@ -65,7 +65,7 @@ public class Consumer {
 
     /*
      * This method parse commandline arguments
-     * 
+     *
      * @args  string array contain command line arguments
      * @return Namespace object containing parsed arguments
      */
