@@ -14,39 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
-import java.net.*;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
 
+
+/*
+ *   Consumer
+ */
 
 public class Consumer {
-
-    // tcp client host and port
-    private static String host;
-    private static int port;
-
-
-    /*
-     * This method send data to server
-     *
-     * @str    contain message data
-     */
-    private static void tcpClient(String str) throws Exception{
-
-        String response;
-        Socket clientSocket = new Socket(host, port);
-        DataOutputStream toServer = new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader fromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        toServer.writeBytes(str + '\n');
-
-        // getting response from server
-        response = fromServer.readLine();
-        System.out.println("FROM SERVER: " + response);
-        clientSocket.close();
-
-        // TODO handle the case when error occur
-    }
 
     /*
      * This method load props( say configuration)
@@ -93,6 +67,10 @@ public class Consumer {
 
         Namespace ns;
         Properties properties;
+        String host;
+        int port = 8000;
+        boolean ack;
+
         KafkaConsumer<String, String> consumer;
 
         // client configuration from client.props
@@ -121,15 +99,17 @@ public class Consumer {
         ns  = argParse(args);
         consumer.subscribe(Arrays.asList(ns.getString("topics").split(",")));
 
-        System.out.println("here");
-        // Simple print messages received by consumer
+        // Making non blocking client object
+        TCPNIOClient client = new TCPNIOClient(host, port);
+
+        System.out.println("consumer started..");
         while (true){
             ConsumerRecords<String, String> records = consumer.poll(200);
             for (ConsumerRecord<String, String> record : records) {
-                tcpClient("topic::" + record.topic()
-                          + " offset::" + record.offset()
-                          + " data::" + record.value());
-                System.out.println("send data");
+                client.send("topic::" + record.topic() +
+                            " offset::" + record.offset() +
+                            " data::" + record.value() + "\n");
+
             }
 
         }
